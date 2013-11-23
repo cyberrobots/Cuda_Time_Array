@@ -14,6 +14,7 @@
 #define KBLU  "\x1B[34m"
 input_var* input_check(int argc,char *argv[])
 {
+	/*This is the fully functional input function*/
 	pid_t pid;
 	int input,i,k,w;
 	int num_of_dist;
@@ -244,6 +245,45 @@ input_var* input_check(int argc,char *argv[])
 
 
 	return (import);
+}
+
+inline distr_var* distribution_mix(distr_mix *ptr,int dist_num,int ensamble)
+{
+	distr_var *array=NULL;
+	distr_mix *local=NULL;
+	int l,k,i,j,w,p;
+	array=(distr_var*)malloc(sizeof(distr_var)*ensamble);
+	local=(distr_mix*)malloc(sizeof(distr_mix)*dist_num);
+	if(local==NULL ||array==NULL){perror("No Mem Allocated!\n");}
+	memcpy(local,ptr,(sizeof(distr_mix)*dist_num));
+	i=0; j=0; p=0; w=0;
+	k=ensamble;
+	for(j=0;j<dist_num;j++)
+	{
+		w=(ensamble-k);
+		p=ensamble*local[j].percentage+w;
+		for(i=w;i<p;i++)
+		{
+			/*Copy the contents.*/
+			memcpy(&array[i],&local[j].var,sizeof(distr_var));
+			k--;/*calculating remaining positions*/
+		}
+	}
+	if(k!=0)
+	{
+		/*Fill the gap if no distribution applies to the rest of the packets.*/
+		for(i=(ensamble-k);i<ensamble;i++)
+		{
+			array[i].distr_opcode=0;
+			for(l=0;l<5;l++)
+			{
+				array[i].var[l]=0.0;
+			}
+		}
+	}
+
+	free(local);
+	return array;
 }
 
 #endif /* FUNCTIONS_H_ */

@@ -9,14 +9,15 @@
 #define MY_KERNELS_CUH_
 
 __global__ void super_kernel(
-		curandState *state,struct timeval *result,
-		distr_var *input,
-		int threads,int samples)
+		curandState *state,
+		long *sec,long *usec,
+		const distr_var *input,
+		int samples)
 {
-    int id = threadIdx.x + blockIdx.x * threads;
+    int id = blockDim.x * blockIdx.x + threadIdx.x;
     double other2;
-    register double internal,other;
-    register unsigned int output;
+    double internal,other;
+    unsigned long output;
     int opcode=0;
     opcode=input[id].distr_opcode;
     if(id<samples)
@@ -26,29 +27,29 @@ __global__ void super_kernel(
     		curand_init(id, 0, 0, &state[id]);
     		if(opcode==0)
     		{
-    			result[id].tv_sec=0;
-    			result[id].tv_usec=0;
+    			sec[id]=0;
+    			usec[id]=0;
     			return;
     		}
     		if(opcode==1)
     		{
-    			output = (unsigned int)(input[id].var[1]+(curand_normal(&state[id])*input[id].var[0]));
+    			output = ( unsigned long)(input[id].var[1]+(curand_normal(&state[id])*input[id].var[0]));
     		}
     		if(opcode==2)
     		{
-    			output = (unsigned int)(curand_poisson(&state[id],input[id].var[0]));
+    			output = ( unsigned long)(curand_poisson(&state[id],input[id].var[0]));
     		}
     		if(opcode==3)
     		{
     			internal=curand_uniform(&state[id]);
-    			output =(unsigned int)(input[id].var[2]+input[id].var[1]*((-1/input[id].var[0])*logf(internal)));
+    			output =( unsigned long)(input[id].var[2]+input[id].var[1]*((-1/input[id].var[0])*logf(internal)));
     		}
     		if(opcode==4)
     		{
     			internal=(curand_uniform(&state[id]));
     			other= internal/input[id].var[0];
     			other2=(-1)*input[id].var[1];
-    			output=(unsigned int)( input[id].var[2] + ( input[id].var[3] * ( ( powf (other, other2) ) ) ) );
+    			output=( unsigned long)( input[id].var[2] + ( input[id].var[3] * ( ( powf (other, other2) ) ) ) );
 
     		}
     		if(opcode==5)
@@ -56,21 +57,24 @@ __global__ void super_kernel(
     			internal = (curand_uniform(&state[id])-input[id].var[2]);
     			other= internal/input[id].var[0];
     			other2=(-1)*input[id].var[1];
-    			output=(unsigned int)( input[id].var[3] + ( input[id].var[4] * ( ( powf (other, other2) ) ) ) );
+    			output=( unsigned long)( input[id].var[3] + ( input[id].var[4] * ( ( powf (other, other2) ) ) ) );
 
     		}
-    		result[id].tv_sec=0;
-    		result[id].tv_usec=0;
+    		sec[id]=0;
+    		usec[id]=0;
     		while(output>1000000)
     		{
-    			result[id].tv_sec++;
+    			sec[id]++;
+    			output=output-1000000;
     		}
-    		result[id].tv_usec=output;
+    		usec[id]=output;
         }
     else
     {
     	return;
     }
+
+
 }
 
 #endif /* MY_KERNELS_CUH_ */

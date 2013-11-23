@@ -21,23 +21,93 @@ int main (int argc, char *argv[])
 {
 	int i;
 	distr_var 		*array=NULL;
+	distr_var 		*d_array=NULL;
 	struct timeval	*Time_results=NULL;
+	struct timeval	*d_Time_results=NULL;
+	long			*sec;
+	long			*h_sec;
+	long			*usec;
+	long			*h_usec;
+	curandState 	*devStates;
+	cudaError_t 	err = cudaSuccess;
 	input_var 		*input=input_check(argc,argv);
+	int threadsPerBlock = 64;
+	int blocksPerGrid;
 	array=distribution_mix(input->globalmix,input->numofdistr,input->accurate);
 	permutate(array, input->accurate);
 	/*Times*/
 	Time_results=(struct timeval *)malloc(sizeof(struct timeval)*input->accurate);
-
+	h_sec=(long *)malloc(sizeof(long)*input->accurate);
+	h_usec=(long *)malloc(sizeof(long)*input->accurate);
 	for(i=0;i<input->accurate;i++)
 	{
 		delay_fix(&Time_results[i],&array[i]);
-		printf("%4i) sec:%1li  usec:%4li\n",i,Time_results[i].tv_sec,Time_results[i].tv_usec);
+		//printf("%4i) sec:%1li  usec:%4li\n",i,Time_results[i].tv_sec,Time_results[i].tv_usec);
+		fflush(stderr);
+	}
+	err = cudaMalloc((void **)&devStates,(size_t)(input->accurate*sizeof(curandState)));
+		if (err != cudaSuccess)
+		{
+			fprintf(stderr,"GPU States MEM\n", cudaGetErrorString(err));
+			exit(EXIT_FAILURE);
+		}
+	err = cudaMalloc((void **)&d_array,(size_t)(sizeof(distr_var)*input->accurate));
+	if (err != cudaSuccess)
+	{
+		fprintf(stderr,"GPU MEM\n", cudaGetErrorString(err));
+		exit(EXIT_FAILURE);
+	}
+	err = cudaMalloc((void **)&sec,(size_t)(sizeof(long)*input->accurate));
+	if (err != cudaSuccess)
+	{
+		fprintf(stderr,"GPU MEM\n", cudaGetErrorString(err));
+		exit(EXIT_FAILURE);
+	}
+	err = cudaMalloc((void **)&usec,(size_t)(sizeof(long)*input->accurate));
+	if (err != cudaSuccess)
+	{
+		fprintf(stderr,"GPU MEM\n", cudaGetErrorString(err));
+		exit(EXIT_FAILURE);
+	}
+	err = cudaMemcpy(d_array, array, (size_t)(sizeof(distr_var)*input->accurate), cudaMemcpyHostToDevice);
+	if (err != cudaSuccess)
+	{
+		fprintf(stderr,"GPU in MEMCPY\n", cudaGetErrorString(err));
+		exit(EXIT_FAILURE);
+	}
+	blocksPerGrid=(input->accurate + threadsPerBlock - 1) / threadsPerBlock;
+	printf("CUDA kernel launch with %d blocks of %d threads\n", blocksPerGrid, threadsPerBlock);
+	super_kernel<<<blocksPerGrid,threadsPerBlock>>>(devStates,sec,usec,d_array,input->accurate);
+	err = cudaGetLastError();
+	if (err != cudaSuccess)
+	{
+		fprintf(stderr, "Failed to launch vectorAdd kernel (error code %s)!\n", cudaGetErrorString(err));
+		exit(EXIT_FAILURE);
+	}
+
+	err = cudaMemcpy(h_sec,sec,(size_t)(sizeof(long)*input->accurate),cudaMemcpyDeviceToHost);
+	if (err != cudaSuccess)
+	{
+		fprintf(stderr,"GPU out MEMCPY\n", cudaGetErrorString(err));
+		exit(EXIT_FAILURE);
+	}
+
+	err = cudaMemcpy(h_usec,usec,(size_t)(sizeof(long)*input->accurate),cudaMemcpyDeviceToHost);
+	if (err != cudaSuccess)
+	{
+		fprintf(stderr,"GPU out MEMCPY\n", cudaGetErrorString(err));
+		exit(EXIT_FAILURE);
+	}
+
+	for(i=0;i<input->accurate;i++)
+	{
+		printf("%4i) sec:%1li  usec:%4li\n",i,h_sec[i],h_usec[i]);
 		fflush(stderr);
 	}
 
 
-
-
+	cudaFree(d_array);
+	cudaFree(d_Time_results);
 	free(array);
 	free(Time_results);
 	free(input->globalmix);

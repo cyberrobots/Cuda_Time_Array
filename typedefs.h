@@ -20,13 +20,13 @@
 /* small type definition files*/
 
 typedef struct{
-	int		distr_opcode;	/*Opcode of each Distribution.*/
-	double	var[5];			/*Variables for each Distribution.*/
+	unsigned int	distr_opcode;	/*Opcode of each Distribution.*/
+	double			var[5];			/*Variables for each Distribution.*/
 }distr_var;
 
 typedef struct{
-	double	percentage;		/*The percentage of each Distribution*/
-	distr_var var;			/*Variables for each Distribution.*/
+	double		percentage;		/*The percentage of each Distribution*/
+	distr_var 	var;			/*Variables for each Distribution.*/
 }distr_mix;
 
 typedef struct

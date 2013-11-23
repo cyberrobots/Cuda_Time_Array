@@ -12,6 +12,7 @@
 #define KRED  "\x1B[31m"
 #define KNRM  "\x1B[0m"
 #define KBLU  "\x1B[34m"
+
 input_var* input_check(int argc,char *argv[])
 {
 	/*This is the fully functional input function*/
@@ -283,7 +284,75 @@ inline distr_var* distribution_mix(distr_mix *ptr,int dist_num,int ensamble)
 	}
 
 	free(local);
-	return array;
+	return (array);
+}
+
+inline void delay_fix(struct timeval *out, distr_var *input)
+{
+	long result=0;
+	//result=rand_normal(MEAN,SIGMA);
+	//result=exponential(LAMDA);
+	//result=poissonRandom(EXPECTED,FACTOR);
+	//result=paretoI(FACTOR,SHIFT,ALFA,SIGM);
+	if(input->distr_opcode==0)
+	{
+		out->tv_sec=0;
+		out->tv_usec=0;
+		return;
+	}
+	else if(input->distr_opcode==1)
+	{
+		result=rand_normal(input->var[0],input->var[1],(int)input->var[2]);
+	}
+	else if(input->distr_opcode==2)
+	{
+		result=poissonRandom((int)input->var[0],(int)input->var[1],(int)input->var[2]);
+	}
+	else if(input->distr_opcode==3)
+	{
+		result=exponential(input->var[0],(int)input->var[1],(int)input->var[2]);
+	}
+	else if(input->distr_opcode==4)
+	{
+		result=paretoI((int)input->var[0],(int)input->var[1],input->var[2],input->var[3]);
+	}
+	else if(input->distr_opcode==5)
+	{
+		result=paretoII_lomax((int)input->var[0],(int)input->var[1],input->var[2],input->var[3],input->var[4]);
+	}
+	//Free for more distributions.
+	out->tv_sec=0;
+	out->tv_usec=0;
+	while(result>1000000){
+		out->tv_sec++;
+		result=result-1000000;
+	}
+	out->tv_usec=result;
+	return;
+}
+
+inline void permutate(distr_var *input, int size)
+{
+//This is an implementation of Fisher–Yates shuffle algorithm,
+//which produces unique random numbers.
+//Wiki	:	http://tinyurl.com/o5uk3t
+//Stack	:	http://tinyurl.com/8tagkfj
+
+	int a;
+	register int i;
+	i=size-1;
+	distr_var swap;
+	while(i!=0)
+	{
+		a=rand()%i;
+		memmove(&swap,			&input[a],	sizeof(distr_var));
+		memmove(&input[a],		&input[i],	sizeof(distr_var));
+		memmove(&input[i],		&swap,		sizeof(distr_var));
+		i--;
+	}
+#ifdef DEBUG
+	printf("Permutation Done!\n");
+#endif
 }
 
 #endif /* FUNCTIONS_H_ */

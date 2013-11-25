@@ -24,10 +24,10 @@ int main (int argc, char *argv[])
 	distr_var 		*d_array=NULL;
 	struct timeval	*Time_results=NULL;
 	struct timeval	*d_Time_results=NULL;
-	long			*sec;
-	long			*h_sec;
-	long			*usec;
-	long			*h_usec;
+	unsigned long			*sec;
+	unsigned long			*h_sec;
+	unsigned long			*usec;
+	unsigned long			*h_usec;
 	curandState 	*devStates;
 	cudaError_t 	err = cudaSuccess;
 	input_var 		*input=input_check(argc,argv);
@@ -37,8 +37,8 @@ int main (int argc, char *argv[])
 	permutate(array, input->accurate);
 	/*Times*/
 	Time_results=(struct timeval *)malloc(sizeof(struct timeval)*input->accurate);
-	h_sec=(long *)malloc(sizeof(long)*input->accurate);
-	h_usec=(long *)malloc(sizeof(long)*input->accurate);
+	h_sec=(unsigned long *)malloc(sizeof(unsigned long)*input->accurate);
+	h_usec=(unsigned long *)malloc(sizeof(unsigned long)*input->accurate);
 	for(i=0;i<input->accurate;i++)
 	{
 		delay_fix(&Time_results[i],&array[i]);
@@ -57,13 +57,13 @@ int main (int argc, char *argv[])
 		fprintf(stderr,"GPU MEM\n", cudaGetErrorString(err));
 		exit(EXIT_FAILURE);
 	}
-	err = cudaMalloc((void **)&sec,(size_t)(sizeof(long)*input->accurate));
+	err = cudaMalloc((void **)&sec,(size_t)(sizeof(unsigned long)*input->accurate));
 	if (err != cudaSuccess)
 	{
 		fprintf(stderr,"GPU MEM\n", cudaGetErrorString(err));
 		exit(EXIT_FAILURE);
 	}
-	err = cudaMalloc((void **)&usec,(size_t)(sizeof(long)*input->accurate));
+	err = cudaMalloc((void **)&usec,(size_t)(sizeof(unsigned long)*input->accurate));
 	if (err != cudaSuccess)
 	{
 		fprintf(stderr,"GPU MEM\n", cudaGetErrorString(err));
@@ -85,14 +85,14 @@ int main (int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	err = cudaMemcpy(h_sec,sec,(size_t)(sizeof(long)*input->accurate),cudaMemcpyDeviceToHost);
+	err = cudaMemcpy(h_sec,sec,(size_t)(sizeof(unsigned long)*input->accurate),cudaMemcpyDeviceToHost);
 	if (err != cudaSuccess)
 	{
 		fprintf(stderr,"GPU out MEMCPY\n", cudaGetErrorString(err));
 		exit(EXIT_FAILURE);
 	}
 
-	err = cudaMemcpy(h_usec,usec,(size_t)(sizeof(long)*input->accurate),cudaMemcpyDeviceToHost);
+	err = cudaMemcpy(h_usec,usec,(size_t)(sizeof(unsigned long)*input->accurate),cudaMemcpyDeviceToHost);
 	if (err != cudaSuccess)
 	{
 		fprintf(stderr,"GPU out MEMCPY\n", cudaGetErrorString(err));
@@ -101,7 +101,8 @@ int main (int argc, char *argv[])
 
 	for(i=0;i<input->accurate;i++)
 	{
-		printf("%4i) sec:%1li  usec:%4li\n",i,h_sec[i],h_usec[i]);
+		//printf("%4i) sec:%4li  usec:%6li\n",i,h_sec[i],h_usec[i]);
+		printf("%6li,\n",h_usec[i]);
 		fflush(stderr);
 	}
 

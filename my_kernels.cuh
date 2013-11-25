@@ -81,32 +81,3 @@ __global__ void super_kernel(
 
 #endif /* MY_KERNELS_CUH_ */
 
-
-
-//    		if(opcode==2)
-//    		{
-//    			output = ( unsigned long)(curand_poisson(&state[id],input[id].var[0]));
-//    		}
-//    		if(opcode==3)
-//    		{
-//    			internal=curand_uniform(&state[id]);
-//    			output =( unsigned long)(input[id].var[2]+input[id].var[1]*((-1/input[id].var[0])*logf(internal)));
-//    		}
-//    		if(opcode==4)
-//    		{
-//    			internal=(curand_uniform(&state[id]));
-//    			other= internal/input[id].var[0];
-//    			other2=(-1)*input[id].var[1];
-//    			output=( unsigned long)( input[id].var[2] + ( input[id].var[3] * ( ( powf (other, other2) ) ) ) );
-//
-//    		}
-//    		if(opcode==5)
-//    		{
-//    			internal = (curand_uniform(&state[id])-input[id].var[2]);
-//    			other= internal/input[id].var[0];
-//    			other2=(-1)*input[id].var[1];
-//    			output=( unsigned long)( input[id].var[3] + ( input[id].var[4] * ( ( powf (other, other2) ) ) ) );
-//
-//    		}
-//
-

@@ -65,11 +65,6 @@ int main (int argc, char *argv[])
 			fprintf(stderr,"GPU Pinned Mem.\n", cudaGetErrorString(err));
 			exit(EXIT_FAILURE);
 		}
-
-
-
-
-
 	err = cudaMalloc((void **)&devStates,(size_t)(input->accurate*sizeof(curandState)));
 		if (err != cudaSuccess)
 		{
@@ -101,7 +96,7 @@ int main (int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 	blocksPerGrid=(input->accurate + threadsPerBlock - 1) / threadsPerBlock;
-	//printf("CUDA kernel launch with %d blocks of %d threads\n", blocksPerGrid, threadsPerBlock);
+	printf("CUDA kernel launch with %d blocks of %d threads\n", blocksPerGrid, threadsPerBlock);
 	cudaEventRecord(start, 0);
 	super_kernel<<<blocksPerGrid,threadsPerBlock>>>(devStates,ph_sec,ph_usec,d_array,input->accurate);
 	err = cudaGetLastError();

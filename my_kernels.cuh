@@ -44,15 +44,15 @@ __global__ void super_kernel(
     			internal=(curand_uniform(&state[id]));
     			other= internal/input[id].var[0];
     			other2=(-1)*input[id].var[1];
-    			output=( unsigned long)( input[id].var[2] + ( input[id].var[3] * ( ( powf (other, other2) ) ) ) );
+    			output=(unsigned long)( input[id].var[3] + ( input[id].var[2] * ( ( powf (other, other2) ) ) ) );
 
     		}
     		else if(opcode==5)
     		{	/*Pareto II*/
     			internal = (curand_uniform(&state[id])-input[id].var[2]);
-    			other= internal/input[id].var[0];
+    			other= (internal/input[id].var[0]);
     			other2=(-1)*input[id].var[1];
-    			output=( unsigned long)( input[id].var[3] + ( input[id].var[4] * ( ( powf (other, other2) ) ) ) );
+    			output=(unsigned long)(input[id].var[4] + ( input[id].var[3] * ( 1+ ( powf (other, other2) ) ) ) );
 
     		}
     		else if(opcode==6)
@@ -74,7 +74,7 @@ __global__ void super_kernel(
     		}
     		usec[id]=output;
         }
-    __syncthreads();
+    //__syncthreads();
 
 
 }

@@ -24,10 +24,12 @@ int main (int argc, char *argv[])
 	distr_var 		*d_array=NULL;
 	struct timeval	*Time_results=NULL;
 	struct timeval	*d_Time_results=NULL;
-	unsigned long			*sec;
-	unsigned long			*h_sec;
-	unsigned long			*usec;
-	unsigned long			*h_usec;
+	unsigned long	*sec;
+	unsigned long	*h_sec;
+	unsigned long	*usec;
+	unsigned long	*h_usec;
+	float 			run_time;
+	cudaEvent_t 	start, stop;
 	curandState 	*devStates;
 	cudaError_t 	err = cudaSuccess;
 	input_var 		*input=input_check(argc,argv);
@@ -35,7 +37,9 @@ int main (int argc, char *argv[])
 	int blocksPerGrid;
 	array=distribution_mix(input->globalmix,input->numofdistr,input->accurate);
 	permutate(array, input->accurate);
-	/*Times*/
+	cudaEventCreate(&start);
+	cudaEventCreate(&stop);
+	/*Out put Times*/
 	Time_results=(struct timeval *)malloc(sizeof(struct timeval)*input->accurate);
 	h_sec=(unsigned long *)malloc(sizeof(unsigned long)*input->accurate);
 	h_usec=(unsigned long *)malloc(sizeof(unsigned long)*input->accurate);
@@ -76,7 +80,8 @@ int main (int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 	blocksPerGrid=(input->accurate + threadsPerBlock - 1) / threadsPerBlock;
-	printf("CUDA kernel launch with %d blocks of %d threads\n", blocksPerGrid, threadsPerBlock);
+	//printf("CUDA kernel launch with %d blocks of %d threads\n", blocksPerGrid, threadsPerBlock);
+	cudaEventRecord(start, 0);
 	super_kernel<<<blocksPerGrid,threadsPerBlock>>>(devStates,sec,usec,d_array,input->accurate);
 	err = cudaGetLastError();
 	if (err != cudaSuccess)
@@ -98,13 +103,17 @@ int main (int argc, char *argv[])
 		fprintf(stderr,"GPU out MEMCPY\n", cudaGetErrorString(err));
 		exit(EXIT_FAILURE);
 	}
+	cudaEventRecord(stop, 0);
+	cudaEventSynchronize(stop);
+	cudaEventElapsedTime(&run_time, start, stop);
+	printf ("Time for the kernel: %f ms\n", run_time);
 
-	for(i=0;i<input->accurate;i++)
-	{
-		//printf("%4i) sec:%4li  usec:%6li\n",i,h_sec[i],h_usec[i]);
-		printf("%6li,\n",h_usec[i]);
-		fflush(stderr);
-	}
+//	for(i=0;i<input->accurate;i++)
+//	{
+//		//printf("%4i) sec:%4li  usec:%6li\n",i,h_sec[i],h_usec[i]);
+//		printf("%6li,\n",h_usec[i]);
+//		fflush(stderr);
+//	}
 
 
 	cudaFree(d_array);

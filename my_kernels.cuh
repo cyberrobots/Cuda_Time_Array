@@ -32,12 +32,12 @@ __global__ void super_kernel(
     		}
     		else if(opcode==2)
     		{	/*Poisson*/
-    			output = ( unsigned long)(curand_poisson(&state[id],input[id].var[0]));
+    			output = ( unsigned long)((curand_poisson(&state[id],input[id].var[0])*input[id].var[1])+input[id].var[2]);
     		}
     		else if(opcode==3)
     		{	/*Exponential*/
     			internal=curand_uniform(&state[id]);
-    			output =( unsigned long)(input[id].var[2]+input[id].var[1]*((-1/input[id].var[0])*logf(internal)));
+    			output =( unsigned long)(input[id].var[2]+(input[id].var[1]*((-1/input[id].var[0])*logf(internal))));
     		}
     		else if(opcode==4)
     		{	/*Pareto I*/

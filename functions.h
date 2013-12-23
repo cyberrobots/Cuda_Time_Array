@@ -42,21 +42,20 @@ input_var* input_check(int argc,char *argv[])
 	else if((argc-1)==1){
 		if(strncmp(argv[1],"-h",2)==0)
 		{
-			printf("%s",KRED);
-			printf(" Help: \n");printf("%s", KNRM);
-			printf("%s>Mandatory inputs:%s\n"
+			printf(" Help: \n");
+			printf(">Mandatory inputs:\n"
 					" 1) Incoming Ethernet Interface Name.\n"
 					" 2) Outgoing Ethernet Interface Name.\n"
-					" 3) Buffer Size.\n",KRED,KNRM);
-			printf("%s>Lossy Operation:\n%s"
+					" 3) Buffer Size.\n");
+			printf(">Lossy Operation:\n"
 					" 4) Packets to be lost.\n"
-					" 5) Ensemble for applying the Loss.\n",KRED,KNRM);
-			printf("%s>Lossy and/or Delay Distribution Operation:%s\n"
+					" 5) Ensemble for applying the Loss.\n");
+			printf(">Lossy and/or Delay Distribution Operation:\n"
 					" 6) Distribution Percentage Contribution (The sum <= 1.0).\n"
 					" 7) Distribution Type (check documentation for supported).\n"
-					" 8) Distribution Variables (check documentation).\n",KRED,KNRM);
+					" 8) Distribution Variables (check documentation).\n");
 			printf("\n e.g. ./name eth0 eth0 1000 10 1024 0.5 Normal 10000 100 0 0 0\n");
-			printf(" %sBye!\n",KRED);printf("%s", KNRM);
+			printf(" Bye!\n");
 			exit(1);
 		}
 		else
@@ -83,18 +82,18 @@ input_var* input_check(int argc,char *argv[])
 		import->loss=0;
 		import->accurate=0;
 		/*Run Statistics and to User Output*/
-		printf("%s*****************************%s\n",KRED,KNRM);
+		printf("*****************************\n");
 		printf("****System Specifications****\n");
-		printf("%s*****************************%s\n",KRED,KNRM);
+		printf("*****************************\n");
 		printf("Buffer Size     : %10i	(positions).\n",import->BUFFER_SIZE);
 		printf("Buffer Memory   : %10li	(bytes).\n",sizeof(place)*import->BUFFER_SIZE);
-		printf("%s*****************************%s\n",KRED,KNRM);
+		printf("*****************************\n");
 		printf("The process id is %d.\n", pid);
-		printf("%s*****************************%s\n",KRED,KNRM);
+		printf("*****************************\n");
 	}
 	else if((argc-1)==5)
 	{
-		printf("\n%sPass Thought with Loss Mode!%s\n",KBLU,KNRM);
+		printf("\nPass Thought with Loss Mode!\n");
 		import=(input_var*)malloc(sizeof(input_var));
 		import->DEVICE=argv[1];
 		import->DEVICE_2=argv[2];
@@ -116,15 +115,15 @@ input_var* input_check(int argc,char *argv[])
 			percentage=(float)(100.0*(float)import->loss/(float)import->accurate);
 		}
 		/*Run Statistics and to User Output*/
-		printf("%s*****************************%s\n",KRED,KNRM);
+		printf("*****************************\n");
 		printf("****System Specifications****\n");
-		printf("%s*****************************%s\n",KRED,KNRM);
+		printf("*****************************\n");
 		printf("Buffer Size     : %10i	(positions).\n",import->BUFFER_SIZE);
 		printf("Buffer Memory   : %10li	(bytes).\n",sizeof(place)*import->BUFFER_SIZE);
-		printf("LOSS PERCENTAGE : %10.4f	%s.\n",percentage,a);
-		printf("%s*****************************%s\n",KRED,KNRM);
+		printf("LOSS PERCENTAGE : %10.4f	.\n",percentage,a);
+		printf("*****************************\n");
 		printf("The process id is %d.\n", pid);
-		printf("%s*****************************%s\n",KRED,KNRM);
+		printf("*****************************\n");
 
 	}
 	else if((argc-1)>BASIC && (argc-1)<=((DISTR_VAR*MAX_DIST)+BASIC))
@@ -151,11 +150,11 @@ input_var* input_check(int argc,char *argv[])
 			fprintf(stderr,"Problem with loss and ensemble (type -h for help.)\n");}
 		if(import->loss==0)
 		{
-			printf("%s\nDistribution Mode!%s\n",KBLU,KNRM);
+			printf("\nDistribution Mode!\n");
 		}
 		else
 		{
-			printf("%s\nDistribution with Loss Mode!%s\n",KBLU,KNRM);
+			printf("\nDistribution with Loss Mode!\n");
 		}
 		/*Check for packet Loss*/
 		if(import->accurate==0)
@@ -176,7 +175,7 @@ input_var* input_check(int argc,char *argv[])
 			num_of_dist++;
 			input=input-DISTR_VAR;
 		}
-		printf("Number of Distributions :%s%i%s\n",KRED,num_of_dist,KNRM);
+		printf("Number of Distributions :%i\n",num_of_dist);
 		import->globalmix=(distr_mix*)malloc(sizeof(distr_mix)*num_of_dist);
 		if(import->globalmix==NULL){fprintf(stderr,"Memory Allocate 2.\n");exit(1);}
 		import->numofdistr=num_of_dist;
@@ -214,12 +213,12 @@ input_var* input_check(int argc,char *argv[])
 				import->globalmix[i].var.var[w]			=atof(argv[k+w+3]);
 			}
 		}
-		printf("%s*****************************%s\n",KRED,KNRM);
+		printf("*****************************\n",KRED,KNRM);
 		printf("****System Specifications****\n");
-		printf("%s*****************************%s\n",KRED,KNRM);
+		printf("*****************************\n",KRED,KNRM);
 		printf("Buffer Size     : %10i	(positions).\n",import->BUFFER_SIZE);
 		printf("Buffer Memory   : %10li	(bytes).\n",sizeof(place)*import->BUFFER_SIZE);
-		printf("LOSS PERCENTAGE : %10.4f	%s.\n",percentage,a);
+		printf("LOSS PERCENTAGE : %10.4f	.\n",percentage,a);
 		printf("Distributions Specifications.\n");
 		/*Printing the Distributions for Validation*/
 		distr_percentage_check=0.0;
@@ -233,9 +232,9 @@ input_var* input_check(int argc,char *argv[])
 			fprintf(stderr,"\nPlease Check Distributions Percentages. (type -h for help.)\n");
 			exit(1);
 		}
-		printf("%s*****************************%s\n",KRED,KNRM);
+		printf("*****************************\n");
 		printf("The process id is %d.\n", pid);
-		printf("%s*****************************%s\n",KRED,KNRM);
+		printf("*****************************%s\n");
 	}
 	else
 
@@ -319,6 +318,10 @@ inline void delay_fix(struct timeval *out, distr_var *input)
 	else if(input->distr_opcode==5)
 	{
 		result=paretoII_lomax((int)input->var[0],(int)input->var[1],input->var[2],input->var[3],input->var[4]);
+	}
+	else if(input->distr_opcode==6)
+	{
+		result=(rand()%(int)input->var[0]+input->var[1]);
 	}
 	//Free for more distributions.
 	out->tv_sec=0;

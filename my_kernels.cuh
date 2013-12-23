@@ -74,7 +74,7 @@ __global__ void super_kernel(
     		}
     		usec[id]=output;
         }
-    __syncthreads();
+    //__syncthreads();
 
 
 }

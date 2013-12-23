@@ -27,7 +27,6 @@ inline int	paretoI(int factor,int shift, double alfa,double sigm)
 	out	=shift+(factor*out);
 	return (int)out;
 }
-
 inline long rand_normal(double mean, double stddev,int shift){
      static double n2 = 0.0;
      static int n2_cached = 0;

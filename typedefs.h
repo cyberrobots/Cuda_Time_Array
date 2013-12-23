@@ -11,7 +11,7 @@
 
 /*Buffers & Lists Stuff.*/
 #define SIZE					1518		/*MIN 50 MAX 1500.*/
-#define MAXSIZE					500000		/*Max buffer size system can handle.*/
+#define MAXSIZE					50000		/*Max buffer size system can handle.*/
 #define INTERFACE_NUMBER_NAME	4			/*The maximum number of char the interface's name could be.*/
 #define DISTR_VAR				7			/*The necessary variables for each distribution*/
 #define	MAX_DIST				6			/*Maximum number of Distributions.*/

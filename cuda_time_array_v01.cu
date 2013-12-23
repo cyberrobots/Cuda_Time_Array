@@ -16,7 +16,7 @@
 #include "functions.h"
 #include "my_kernels.cuh"
 
-#define PRINT_RESULT_NO
+#define PRINT_RESULT
 
 int main (int argc, char *argv[])
 {
@@ -36,7 +36,7 @@ int main (int argc, char *argv[])
 	curandState 	*devStates;
 	cudaError_t 	err = cudaSuccess;
 	input_var 		*input=input_check(argc,argv);
-	int threadsPerBlock = 64;
+	int threadsPerBlock = 256;
 	int blocksPerGrid;
 	array=distribution_mix(input->globalmix,input->numofdistr,input->accurate);
 	permutate(array, input->accurate);
@@ -46,12 +46,15 @@ int main (int argc, char *argv[])
 	Time_results=(struct timeval *)malloc(sizeof(struct timeval)*input->accurate);
 	h_sec=(unsigned long *)malloc(sizeof(unsigned long)*input->accurate);
 	h_usec=(unsigned long *)malloc(sizeof(unsigned long)*input->accurate);
+	/*CPU Calculation*/
 	for(i=0;i<input->accurate;i++)
 	{
 		delay_fix(&Time_results[i],&array[i]);
-		//printf("%4i) sec:%1li  usec:%4li\n",i,Time_results[i].tv_sec,Time_results[i].tv_usec);
-		fflush(stderr);
+#ifdef PRINT_RESULT
+		printf("%4i) sec:%1li  usec:%4li\n",i,Time_results[i].tv_sec,Time_results[i].tv_usec);
+#endif
 	}
+
 	/*Pinned Memory*/
 	err = cudaHostAlloc((void **)&ph_sec,(size_t)(sizeof(unsigned long)*input->accurate),cudaHostAllocDefault);
 		if (err != cudaSuccess)
@@ -65,6 +68,15 @@ int main (int argc, char *argv[])
 			fprintf(stderr,"GPU Pinned Mem.\n", cudaGetErrorString(err));
 			exit(EXIT_FAILURE);
 		}
+//		/*Allocate pinned memory and initalize it.*/
+//	err = cudaHostAlloc((void **)&d_array,(size_t)(sizeof(distr_var)*input->accurate),cudaHostAllocDefault);
+//		if (err != cudaSuccess)
+//		{
+//			fprintf(stderr,"GPU MEM\n", cudaGetErrorString(err));
+//			exit(EXIT_FAILURE);
+//		}
+//		d_array=distribution_mix(input->globalmix,input->numofdistr,input->accurate);
+//		//////////////////////////////////////////
 	err = cudaMalloc((void **)&devStates,(size_t)(input->accurate*sizeof(curandState)));
 		if (err != cudaSuccess)
 		{
@@ -77,6 +89,7 @@ int main (int argc, char *argv[])
 		fprintf(stderr,"GPU MEM\n", cudaGetErrorString(err));
 		exit(EXIT_FAILURE);
 	}
+
 	err = cudaMalloc((void **)&sec,(size_t)(sizeof(unsigned long)*input->accurate));
 	if (err != cudaSuccess)
 	{

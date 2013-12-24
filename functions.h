@@ -213,9 +213,9 @@ input_var* input_check(int argc,char *argv[])
 				import->globalmix[i].var.var[w]			=atof(argv[k+w+3]);
 			}
 		}
-		printf("*****************************\n",KRED,KNRM);
+		printf("*****************************\n");
 		printf("****System Specifications****\n");
-		printf("*****************************\n",KRED,KNRM);
+		printf("*****************************\n");
 		printf("Buffer Size     : %10i	(positions).\n",import->BUFFER_SIZE);
 		printf("Buffer Memory   : %10li	(bytes).\n",sizeof(place)*import->BUFFER_SIZE);
 		printf("LOSS PERCENTAGE : %10.4f	.\n",percentage,a);

@@ -9,10 +9,6 @@
 #define FUNCTIONS_H_
 
 
-#define KRED  "\x1B[31m"
-#define KNRM  "\x1B[0m"
-#define KBLU  "\x1B[34m"
-
 input_var* input_check(int argc,char *argv[])
 {
 	/*This is the fully functional input function*/
@@ -66,7 +62,7 @@ input_var* input_check(int argc,char *argv[])
 	}
 	else if((argc-1)==3)
 	{
-		printf("\n%sPass Thought Mode!%s\n",KBLU,KNRM);
+		printf("\nPass Thought Mode!\n");
 		import=(input_var*)malloc(sizeof(input_var));
 		import->DEVICE=argv[1];
 		import->DEVICE_2=argv[2];
@@ -234,7 +230,7 @@ input_var* input_check(int argc,char *argv[])
 		}
 		printf("*****************************\n");
 		printf("The process id is %d.\n", pid);
-		printf("*****************************%s\n");
+		printf("*****************************\n");
 	}
 	else
 
@@ -288,45 +284,78 @@ inline distr_var* distribution_mix(distr_mix *ptr,int dist_num,int ensamble)
 
 inline void delay_fix(struct timeval *out, distr_var *input)
 {
+	/************************/
+	/*		Functions		*/
+	/************************/
+	/*
+		0 Pass without processing.
+		1 result = rand_normal (MEAN , SIGMA); // Gauss
+		2 result = exponential (LAMDA);
+		3 result = poissonRandom (EXPECTED , FACTOR);
+		4 result = paretoI (FACTOR , SHIFT , ALFA , SIGM);
+		5 result = paretoII (FACTOR , SHIFT , ALFA , SIGM);
+		6 result = random(FACTOR , SHIFT);	// Uniform
+	*/
+	/************************/
+
 	long result=0;
-	//result=rand_normal(MEAN,SIGMA);
-	//result=exponential(LAMDA);
-	//result=poissonRandom(EXPECTED,FACTOR);
-	//result=paretoI(FACTOR,SHIFT,ALFA,SIGM);
-	if(input->distr_opcode==0)
-	{
+
+	switch(input->distr_opcode){
+//	if(input->distr_opcode==0)
+//	{
+	case 0 :
 		out->tv_sec=0;
 		out->tv_usec=0;
-		return;
-	}
-	else if(input->distr_opcode==1)
-	{
+		result=0;
+		//return;
+//	}
+	break;
+	case 1 :
+	//else if(input->distr_opcode==1)
+	//{
 		result=rand_normal(input->var[0],input->var[1],(int)input->var[2]);
-	}
-	else if(input->distr_opcode==2)
-	{
+	//}
+	break;
+	//else if(input->distr_opcode==2)
+	//{
+	case 2 :
 		result=poissonRandom((int)input->var[0],(int)input->var[1],(int)input->var[2]);
-	}
-	else if(input->distr_opcode==3)
-	{
+	//}
+	break;
+	//else if(input->distr_opcode==3)
+	//{
+	case 3 :
 		result=exponential(input->var[0],(int)input->var[1],(int)input->var[2]);
-	}
-	else if(input->distr_opcode==4)
-	{
+	//}
+	break;
+
+	//else if(input->distr_opcode==4)
+	//{
+	case 4 :
 		result=paretoI((int)input->var[0],(int)input->var[1],input->var[2],input->var[3]);
-	}
-	else if(input->distr_opcode==5)
-	{
+	//}
+	break;
+	//else if(input->distr_opcode==5)
+	//{
+	case 5 :
+
 		result=paretoII_lomax((int)input->var[0],(int)input->var[1],input->var[2],input->var[3],input->var[4]);
-	}
-	else if(input->distr_opcode==6)
-	{
+	//}
+	break;
+	//else if(input->distr_opcode==6)
+	//{
+	case 6 :
 		result=(rand()%(int)input->var[0]+input->var[1]);
+	//}
+	break;
+	default:
+	break;
 	}
-	//Free for more distributions.
+	// Convert Long delay to seconds and microseconds.
 	out->tv_sec=0;
 	out->tv_usec=0;
-	while(result>1000000){
+	while(result>1000000)
+	{
 		out->tv_sec++;
 		result=result-1000000;
 	}

@@ -248,12 +248,23 @@ inline distr_var* distribution_mix(distr_mix *ptr,int dist_num,int ensamble)
 	distr_var *array=NULL;
 	distr_mix *local=NULL;
 	int l,k,i,j,w,p;
+
+	/*	Functions	*/
+
+	// Allocate the array is going to be returned
 	array=(distr_var*)malloc(sizeof(distr_var)*ensamble);
+
+	// Allocate small arrays according the number of the distributions
 	local=(distr_mix*)malloc(sizeof(distr_mix)*dist_num);
+
 	if(local==NULL ||array==NULL){perror("No Mem Allocated!\n");}
+
 	memcpy(local,ptr,(sizeof(distr_mix)*dist_num));
+
 	i=0; j=0; p=0; w=0;
+
 	k=ensamble;
+	/* memcpy the distributions vars into each array places spot */
 	for(j=0;j<dist_num;j++)
 	{
 		w=(ensamble-k);
@@ -262,7 +273,8 @@ inline distr_var* distribution_mix(distr_mix *ptr,int dist_num,int ensamble)
 		{
 			/*Copy the contents.*/
 			memcpy(&array[i],&local[j].var,sizeof(distr_var));
-			k--;/*calculating remaining positions*/
+			/*calculating remaining positions*/
+			k--;
 		}
 	}
 	if(k!=0)
@@ -277,7 +289,7 @@ inline distr_var* distribution_mix(distr_mix *ptr,int dist_num,int ensamble)
 			}
 		}
 	}
-
+	// Free Local memory and return
 	free(local);
 	return (array);
 }
@@ -374,6 +386,7 @@ inline void permutate(distr_var *input, int size)
 	register int i;
 	i=size-1;
 	distr_var swap;
+
 	while(i!=0)
 	{
 		a=rand()%i;
@@ -382,9 +395,11 @@ inline void permutate(distr_var *input, int size)
 		memmove(&input[i],		&swap,		sizeof(distr_var));
 		i--;
 	}
+
 #ifdef DEBUG
 	printf("Permutation Done!\n");
 #endif
+
 }
 
 #endif /* FUNCTIONS_H_ */
